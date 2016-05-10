@@ -5,8 +5,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         curl \
         wget
  
-RUN apt-get
- 
 # Environment variables
 ENV TOMCAT_MAJOR=8 TOMCAT_VERSION=8.0.33
 ENV TOMCAT_TGZ_URL=https://www.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz \
@@ -52,23 +50,24 @@ RUN ln -s /tmp/maven/bin/mvn /usr/bin/mvn
 # # Install root filesystem
 # ADD ./rootfs /
  
-RUN rm -rf /var/lib/apt/lists/*
-RUN rm -rf /var/cache/oracle-jdk7-installer
- 
 RUN mkdir -p /srv/dspace /srv/dspace-src
 
-RUN apt-get update && apt-get install bash-completion
+RUN apt-get install bash-completion
 
 RUN mkdir /root/.m2
-VOLUME /root/.m2
-WORKDIR /srv/dspace
+#VOLUME /root/.m2
 
+RUN apt-get install git -y
+RUN apt-get install byobu -y
 
+COPY bashrc /root/.bashrc
+COPY bash_aliases /root/.bash_aliases
+COPY setenv.sh $CATALINA_HOME/bin
 
-# # Build info
-# RUN echo "Debian GNU/Linux 8 (jessie) image. (`uname -rsv`)" >> /root/.built && \
-#     echo "- with `java -version 2>&1 | awk 'NR == 2'`" >> /root/.built && \
-#     echo "- with DSpace $DSPACE_VERSION on Tomcat $TOMCAT_VERSION"  >> /root/.built
- 
-# EXPOSE 8080
-# CMD ["start-dspace"]
+RUN ln -s /u
+
+RUN rm -rf /var/lib/apt/lists/*
+RUN rm -rf /var/cache/oracle-jdk7-installer
+RUN ln -s /srv/dspace/bin/dspace /usr/bin/dspace
+
+WORKDIR /srv/dspace-src

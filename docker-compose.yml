@@ -1,29 +1,27 @@
 version: '2'
-# Postgres database
 services:
+  # Postgres database
   postgres:
     image: postgres
     ports:
       - 5432:5432
+    environment:
+      - POSTGRES_DB=dspace
+      - POSTGRES_USER=dspace
+      - POSTGRES_PASSWORD=dspace
   # DSpace
   dspace-dev:
     build: .
-    stdin_open: true
-    tty: true
     ports:
       - 8080:8080
       - 8000:8000
     depends_on:
       - postgres
     volumes:
-      # Just specify a path and let the Engine create a volume
-      - /var/lib/mysql
-
-      # Specify an absolute path mapping
-      - /opt/data:/var/lib/mysql
-
       # Path on the host, relative to the Compose file
       - ./dspace-build:/srv/dspace
-      - /home/pmarrone/Repositorios/dspace:/srv/dspace-src
+      - ./dspace-src:/srv/dspace-src
       - ./m2-repo:/root/.m2
     command: /bin/bash
+    tty: true
+    stdin_open: true
