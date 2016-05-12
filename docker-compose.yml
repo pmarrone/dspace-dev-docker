@@ -15,13 +15,18 @@ services:
     ports:
       - 8080:8080
       - 8000:8000
+      #Remote Debugger
+      - 1043:1043
     depends_on:
       - postgres
+    environment:
+      - DISPLAY=:0
     volumes:
       # Path on the host, relative to the Compose file
       - ./dspace-build:/srv/dspace
       - ./dspace-src:/srv/dspace-src
       - ./m2-repo:/root/.m2
+      - /tmp/.X11-unix:/tmp/.X11-unix
     command: /bin/bash
     tty: true
     stdin_open: true

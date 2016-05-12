@@ -59,15 +59,29 @@ RUN mkdir /root/.m2
 
 RUN apt-get install git -y
 RUN apt-get install byobu -y
+RUN apt-get install libxext-dev libxrender-dev libxtst-dev -y
+
+#To make intellij work. For some reason, it requires the fonts to be installed
+#RUN sudo apt-get install openjdk-7-jdk -y
+RUN  apt-get install fontconfig fontconfig-config fonts-dejavu-core fonts-dejavu-extra fuse -y
 
 COPY bashrc /root/.bashrc
 COPY bash_aliases /root/.bash_aliases
 COPY setenv.sh $CATALINA_HOME/bin
 
-RUN ln -s /u
+RUN export uid=1000 gid=1000 && \
+    mkdir -p /home/developer && \
+    echo "developer:x:${uid}:${gid}:Developer,,,:/home/developer:/bin/bash" >> /etc/passwd && \
+    echo "developer:x:${uid}:" >> /etc/group && \
+    echo "developer ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/developer && \
+    chmod 0440 /etc/sudoers.d/developer && \
+    chown ${uid}:${gid} -R /home/developer
 
 RUN rm -rf /var/lib/apt/lists/*
 RUN rm -rf /var/cache/oracle-jdk7-installer
 RUN ln -s /srv/dspace/bin/dspace /usr/bin/dspace
+USER developer
+ENV HOME /home/developer
 
 WORKDIR /srv/dspace-src
+
