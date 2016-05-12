@@ -25,5 +25,5 @@ acceptable configuration that avoids full rebuilds. To top that, having the user
 running ensures that your IDE won't understand the full process.
 
 Anyway, it seems that there are lots of things that can be done to hasten the code -> build -> run -> test cycle but it's
-kind of messy to do it in your workstation. Having a container that keeps all this customizations in isolation should
+kind of messy to do it on your workstation. Having a container that keeps all this customizations in isolation should
 encourage experimenting with further tweaks.
