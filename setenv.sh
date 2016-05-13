@@ -1,4 +1,5 @@
 export CATALINA_OPTS="$CATALINA_OPTS -Xms512m"
 export CATALINA_OPTS="$CATALINA_OPTS -Xmx2048m"
 export CATALINA_OPTS="$CATALINA_OPTS -XX:MaxPermSize=1024m"
-export JPDA_OPTS="-agentlib:jdwp=transport=dt_socket,address=1043,server=y,suspend=n"
+export CATALINA_OPTS="$CATALINA_OPTS -XXaltjvm=dcevm"
+export JPDA_OPTS="-agentlib:jdwp=transport=dt_socket,address=1043,server=y,suspend=n -XXaltjvm=dcevm -javaagent:/usr/lib/hotswapagent/hotswap-agent.jar" 

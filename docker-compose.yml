@@ -20,7 +20,7 @@ services:
     depends_on:
       - postgres
     environment:
-      - DISPLAY=:0
+      - DISPLAY=${DISPLAY}
     volumes:
       # Path on the host, relative to the Compose file
       - ./dspace-build:/srv/dspace

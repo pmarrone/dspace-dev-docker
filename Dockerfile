@@ -35,10 +35,15 @@ RUN curl -fSL "$TOMCAT_TGZ_URL" -o tomcat.tar.gz
 RUN curl -fSL "$MAVEN_TGZ_URL" -o maven.tar.gz \
     && tar -xvf tomcat.tar.gz --strip-components=1 -C "$CATALINA_HOME" \
     && tar -xvf maven.tar.gz --strip-components=1  -C maven
+
+RUN apt-get install git -y
+RUN apt-get install byobu -y
+
  
 #RUN sed -i s/CONFIDENTIAL/NONE/ /usr/local/tomcat/webapps/rest/WEB-INF/web.xml
  
 #Install DCEVM
+COPY libjvm.so /usr/lib/jvm/java-7-oracle/jre/lib/amd64/dcevm/libjvm.so
 COPY libjvm.so /usr/lib/jvm/java-7-oracle/jre/lib/amd64/server/dcevm/libjvm.so
 RUN mkdir /usr/lib/hotswapagent
 
@@ -46,9 +51,6 @@ RUN mkdir /usr/lib/hotswapagent
 COPY HotswapAgent-0.3.zip /usr/lib/hotswapagent/HotswapAgent-0.3.zip
 
 RUN ln -s /tmp/maven/bin/mvn /usr/bin/mvn 
-
-# # Install root filesystem
-# ADD ./rootfs /
  
 RUN mkdir -p /srv/dspace /srv/dspace-src
 
@@ -57,19 +59,54 @@ RUN apt-get install bash-completion
 RUN mkdir /root/.m2
 #VOLUME /root/.m2
 
-RUN apt-get install git -y
-RUN apt-get install byobu -y
+
+
+###
+# Bash configuration
+###
+
+#Configure colors and autocompletion
+COPY bashrc /root/.bashrc
+COPY bashrc /home/developer/.bashrc
+
+#Configure some useful aliases
+COPY bash_aliases /root/.bash_aliases
+COPY bash_aliases /home/developer/.bashrc
+
+###
+# Tomcat configuration tweaks
+###
+
+# Configure remote debugging and extra memory
+COPY setenv.sh $CATALINA_HOME/bin
+
+
+###
+# Installing an IDE
+###
+
+#Required for running Idea IDE
 RUN apt-get install libxext-dev libxrender-dev libxtst-dev -y
 
 #To make intellij work. For some reason, it requires the fonts to be installed
-#RUN sudo apt-get install openjdk-7-jdk -y
-RUN  apt-get install fontconfig fontconfig-config fonts-dejavu-core fonts-dejavu-extra fuse -y
+RUN  apt-get install fontconfig fontconfig-config fonts-dejavu-core fonts-dejavu-extra -y
 
-COPY bashrc /root/.bashrc
-COPY bash_aliases /root/.bash_aliases
-COPY setenv.sh $CATALINA_HOME/bin
+#Download the IDE
+#ADD https://download.jetbrains.com/idea/ideaIC-2016.1.2.tar.gz /home/developer/idea
 
-RUN export uid=1000 gid=1000 && \
+RUN apt-get install unzip -y
+RUN unzip /usr/lib/hotswapagent/HotswapAgent-0.3.zip -d /usr/lib/hotswapagent/
+RUN rm /usr/lib/hotswapagent/HotswapAgent-0.3.zip
+
+###
+# Cleanup
+###
+RUN rm -rf /var/lib/apt/lists/*
+RUN rm -rf /var/cache/oracle-jdk7-installer
+RUN ln -s /srv/dspace/bin/dspace /usr/bin/dspace
+
+RUN export HOME=/home/developer
+RUN export uid=1009 gid=1009 && \
     mkdir -p /home/developer && \
     echo "developer:x:${uid}:${gid}:Developer,,,:/home/developer:/bin/bash" >> /etc/passwd && \
     echo "developer:x:${uid}:" >> /etc/group && \
@@ -77,11 +114,18 @@ RUN export uid=1000 gid=1000 && \
     chmod 0440 /etc/sudoers.d/developer && \
     chown ${uid}:${gid} -R /home/developer
 
-RUN rm -rf /var/lib/apt/lists/*
-RUN rm -rf /var/cache/oracle-jdk7-installer
-RUN ln -s /srv/dspace/bin/dspace /usr/bin/dspace
-USER developer
-ENV HOME /home/developer
+RUN chown -R developer $CATALINA_HOME
+
+COPY jdk-7u79-linux-x64.tar.gz /tmp/jdk-7u79-linux-x64.tar.gz
+RUN tar -xvzf jdk-7u79-linux-x64.tar.gz --strip-components=1 -C /usr/lib/jvm/java-7-oracle/
+
+COPY entrypoint.sh /
+RUN chmod +x /entrypoint.sh
+#ENTRYPOINT ["/entrypoint.sh"]
+USER 1009
 
 WORKDIR /srv/dspace-src
 
+EXPOSE 1043:1043
+EXPOSE 8080:8080
+EXPOSE 8000:8000
