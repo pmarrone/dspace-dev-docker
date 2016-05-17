@@ -25,7 +25,7 @@ services:
       # Path on the host, relative to the Compose file
       - ./dspace-build:/srv/dspace
       - ./dspace-src:/srv/dspace-src
-      - ./m2-repo:/root/.m2
+      - ./m2-repo:/home/developer/.m2
       - /tmp/.X11-unix:/tmp/.X11-unix
     command: /bin/bash
     tty: true

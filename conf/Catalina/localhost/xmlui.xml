@@ -1,0 +1,13 @@
+<Context 
+  docBase="/srv/dspace-src/dspace/modules/xmlui/target/xmlui-5.5"
+  reloadable="true" 
+>
+	<JarScanner scanClassPath="false" scanAllFiles="false" scanAllDirectories="false"/>
+	<Parameter name="dspace-config" override="false"
+		value="/srv/dspace/config/dspace.cfg"
+		description="Path to the DSpace config file." />
+
+	<Parameter name="dspace.dir" override="false"
+		value="/srv/dspace/"
+		description="Path to the DSpace home directory." />
+</Context>

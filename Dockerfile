@@ -122,6 +122,13 @@ RUN tar -xvzf jdk-7u79-linux-x64.tar.gz --strip-components=1 -C /usr/lib/jvm/jav
 COPY entrypoint.sh /
 RUN chmod +x /entrypoint.sh
 #ENTRYPOINT ["/entrypoint.sh"]
+
+#Install PSI Probe
+COPY probe.war $CATALINA_HOME/webapps/probe.war
+COPY tomcat-users.xml $CATALINA_HOME/conf/tomcat-users.xml
+
+COPY conf $CATALINA_HOME/conf
+
 USER 1009
 
 WORKDIR /srv/dspace-src

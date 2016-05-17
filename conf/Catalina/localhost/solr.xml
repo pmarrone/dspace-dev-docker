@@ -1,0 +1,17 @@
+<Context 
+  docBase="/srv/dspace-src/dspace/modules/solr/target/solr-5.5"
+  reloadable="true"
+>
+	<JarScanner scanClassPath="false" scanAllFiles="false" scanAllDirectories="false"/>
+	<Parameter name="dspace-config" override="false"
+		value="/srv/dspace/config/dspace.cfg"
+		description="Path to the DSpace config file." />
+
+	<Parameter name="dspace.dir" override="false"
+		value="/srv/dspace/"
+		description="Path to the DSpace home directory." />
+
+	<Parameter name="log4j.configuration" override="false"
+		value="/srv/dspace/config/log4j-solr.properties"
+		description="URL locating a Log4J configuration file (properties or XML).." />
+</Context>
