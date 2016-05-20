@@ -71,7 +71,7 @@ COPY bashrc /home/developer/.bashrc
 
 #Configure some useful aliases
 COPY bash_aliases /root/.bash_aliases
-COPY bash_aliases /home/developer/.bashrc
+COPY bash_aliases /home/developer/.bash_aliases
 
 ###
 # Tomcat configuration tweaks
@@ -106,7 +106,7 @@ RUN rm -rf /var/cache/oracle-jdk7-installer
 RUN ln -s /srv/dspace/bin/dspace /usr/bin/dspace
 
 RUN export HOME=/home/developer
-RUN export uid=1009 gid=1009 && \
+RUN export uid=1000 gid=1000 && \
     mkdir -p /home/developer && \
     echo "developer:x:${uid}:${gid}:Developer,,,:/home/developer:/bin/bash" >> /etc/passwd && \
     echo "developer:x:${uid}:" >> /etc/group && \
@@ -125,11 +125,24 @@ RUN chmod +x /entrypoint.sh
 
 #Install PSI Probe
 COPY probe.war $CATALINA_HOME/webapps/probe.war
-COPY tomcat-users.xml $CATALINA_HOME/conf/tomcat-users.xml
 
 COPY conf $CATALINA_HOME/conf
 
-USER 1009
+RUN curl -sL https://deb.nodesource.com/setup | sudo bash - \
+  && apt-get install nodejs -y 
+
+RUN npm install -g grunt bower
+
+USER developer
+
+RUN curl -sSL https://rvm.io/mpapis.asc | gpg --import - \ 
+  && curl -sSL https://get.rvm.io | bash -s stable --ruby
+
+RUN bash -c "source ~/.profile \
+  && gem install sass -v 3.3.14  \
+  && gem install compass -v 1.0.1"
+
+RUN echo "source ~/.profile" >> ~/.bashrc
 
 WORKDIR /srv/dspace-src
 
