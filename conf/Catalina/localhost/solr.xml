@@ -14,4 +14,7 @@
 	<Parameter name="log4j.configuration" override="false"
 		value="/srv/dspace/config/log4j-solr.properties"
 		description="URL locating a Log4J configuration file (properties or XML).." />
+
+	<Environment name="solr/home" value="/srv/dspace/solr"
+		override="false" type="java.lang.String"/> 
 </Context>

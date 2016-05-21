@@ -17,15 +17,15 @@ WORKDIR /tmp
  
 RUN apt-get install software-properties-common -y
  
-RUN \
-  echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
-  add-apt-repository -y ppa:webupd8team/java && \
-  apt-get update && \
-  apt-get install -y oracle-java7-installer
- 
 # Define commonly used JAVA_HOME variable
 ENV JAVA_HOME /usr/lib/jvm/java-7-oracle
- 
+#COPY jdk-7u79-linux-x64.tar.gz /tmp/jdk-7u79-linux-x64.tar.gz
+RUN  curl -v -j -k -L -H "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/7u79-b15/jdk-7u79-linux-x64.tar.gz -o jdk-7u79-linux-x64.tar.gz
+RUN mkdir -p $JAVA_HOME
+RUN tar -xvzf jdk-7u79-linux-x64.tar.gz --strip-components=1 -C $JAVA_HOME
+RUN update-alternatives --install /usr/bin/java java $JAVA_HOME/jre/bin/java 2000
+RUN update-alternatives --install /usr/bin/javac javac $JAVA_HOME/bin/javac 2000
+
 # Install runtime and dependencies
 RUN apt-get install -y vim ant postgresql-client
  
@@ -36,19 +36,9 @@ RUN curl -fSL "$MAVEN_TGZ_URL" -o maven.tar.gz \
     && tar -xvf tomcat.tar.gz --strip-components=1 -C "$CATALINA_HOME" \
     && tar -xvf maven.tar.gz --strip-components=1  -C maven
 
-RUN apt-get install git -y
+RUN apt-get update && apt-get install git -y
 RUN apt-get install byobu -y
 
- 
-#RUN sed -i s/CONFIDENTIAL/NONE/ /usr/local/tomcat/webapps/rest/WEB-INF/web.xml
- 
-#Install DCEVM
-COPY libjvm.so /usr/lib/jvm/java-7-oracle/jre/lib/amd64/dcevm/libjvm.so
-COPY libjvm.so /usr/lib/jvm/java-7-oracle/jre/lib/amd64/server/dcevm/libjvm.so
-RUN mkdir /usr/lib/hotswapagent
-
-#Install Hotswap agent
-COPY HotswapAgent-0.3.zip /usr/lib/hotswapagent/HotswapAgent-0.3.zip
 
 RUN ln -s /tmp/maven/bin/mvn /usr/bin/mvn 
  
@@ -58,7 +48,6 @@ RUN apt-get install bash-completion
 
 RUN mkdir /root/.m2
 #VOLUME /root/.m2
-
 
 
 ###
@@ -80,30 +69,23 @@ COPY bash_aliases /home/developer/.bash_aliases
 # Configure remote debugging and extra memory
 COPY setenv.sh $CATALINA_HOME/bin
 
-
-###
-# Installing an IDE
-###
-
-#Required for running Idea IDE
-RUN apt-get install libxext-dev libxrender-dev libxtst-dev -y
-
-#To make intellij work. For some reason, it requires the fonts to be installed
-RUN  apt-get install fontconfig fontconfig-config fonts-dejavu-core fonts-dejavu-extra -y
-
-#Download the IDE
-#ADD https://download.jetbrains.com/idea/ideaIC-2016.1.2.tar.gz /home/developer/idea
-
 RUN apt-get install unzip -y
-RUN unzip /usr/lib/hotswapagent/HotswapAgent-0.3.zip -d /usr/lib/hotswapagent/
-RUN rm /usr/lib/hotswapagent/HotswapAgent-0.3.zip
 
-###
-# Cleanup
-###
-RUN rm -rf /var/lib/apt/lists/*
-RUN rm -rf /var/cache/oracle-jdk7-installer
-RUN ln -s /srv/dspace/bin/dspace /usr/bin/dspace
+#Install DCEVM
+#COPY libjvm.so /usr/lib/jvm/java-7-oracle/jre/lib/amd64/dcevm/libjvm.so
+RUN curl -fSL https://github.com/dcevm/dcevm/releases/download/full-jdk7u79%2B8/DCEVM-full-7u79-installer.jar -o DCEVM-full-7u79-installer.jar
+RUN unzip DCEVM-full-7u79-installer.jar
+RUN mkdir -p /usr/lib/jvm/java-7-oracle/jre/lib/amd64/dcevm/
+RUN ls -l
+RUN mv linux_amd64_compiler2/product/libjvm.so /usr/lib/jvm/java-7-oracle/jre/lib/amd64/dcevm/libjvm.so
+
+
+#Install Hotswap agent
+#COPY HotswapAgent-0.3.zip /usr/lib/hotswapagent/HotswapAgent-0.3.zip
+ADD https://github.com/HotswapProjects/HotswapAgent/releases/download/RELEASE-0.3/HotswapAgent-0.3.zip HotswapAgent-0.3.zip
+RUN mkdir /usr/lib/hotswapagent
+RUN unzip HotswapAgent-0.3.zip -d /usr/lib/hotswapagent/
+RUN rm HotswapAgent-0.3.zip
 
 RUN export HOME=/home/developer
 RUN export uid=1000 gid=1000 && \
@@ -116,8 +98,6 @@ RUN export uid=1000 gid=1000 && \
 
 RUN chown -R developer $CATALINA_HOME
 
-COPY jdk-7u79-linux-x64.tar.gz /tmp/jdk-7u79-linux-x64.tar.gz
-RUN tar -xvzf jdk-7u79-linux-x64.tar.gz --strip-components=1 -C /usr/lib/jvm/java-7-oracle/
 
 COPY entrypoint.sh /
 RUN chmod +x /entrypoint.sh
@@ -132,6 +112,26 @@ RUN curl -sL https://deb.nodesource.com/setup | sudo bash - \
   && apt-get install nodejs -y 
 
 RUN npm install -g grunt bower
+
+###
+# Installing an IDE
+###
+
+#Download the IDE
+#ADD https://download.jetbrains.com/idea/ideaIC-2016.1.2.tar.gz /home/developer/idea
+
+#Required for running Idea IDE
+RUN apt-get install libxext-dev libxrender-dev libxtst-dev -y
+
+#To make intellij work. For some reason, it requires the fonts to be installed
+RUN  apt-get install fontconfig fontconfig-config fonts-dejavu-core fonts-dejavu-extra -y
+
+###
+# Cleanup
+###
+RUN rm -rf /var/lib/apt/lists/*
+RUN rm -rf /var/cache/oracle-jdk7-installer
+RUN ln -s /srv/dspace/bin/dspace /usr/bin/dspace
 
 USER developer
 
