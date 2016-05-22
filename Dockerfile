@@ -104,7 +104,9 @@ RUN chmod +x /entrypoint.sh
 #ENTRYPOINT ["/entrypoint.sh"]
 
 #Install PSI Probe
-COPY probe.war $CATALINA_HOME/webapps/probe.war
+RUN curl -fSL https://github.com/psi-probe/psi-probe/releases/download/2.4.0/probe-2.4.0.zip -o probe.zip
+RUN unzip probe.zip
+RUN mv probe.war $CATALINA_HOME/webapps/probe.war
 
 COPY conf $CATALINA_HOME/conf
 
