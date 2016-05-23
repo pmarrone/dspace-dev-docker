@@ -139,6 +139,10 @@ RUN ln -s /srv/dspace/bin/dspace /usr/bin/dspace
 #RUN export uid=1009 && usermod -u $uid developer
 #RUN  chown -R developer:developer /home/developer
 
+#Also, give developer ownership of CATALINA_HOME
+RUN chown -R developer:developer $CATALINA_HOME/
+USER developer
+
 USER developer
 
 RUN curl -sSL https://rvm.io/mpapis.asc | gpg --import - \ 
