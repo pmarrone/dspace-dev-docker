@@ -135,6 +135,10 @@ RUN rm -rf /var/lib/apt/lists/*
 RUN rm -rf /var/cache/oracle-jdk7-installer
 RUN ln -s /srv/dspace/bin/dspace /usr/bin/dspace
 
+#Uncomment this lines to set a custom UID. E.g.: 1009
+#RUN export uid=1009 && usermod -u $uid developer
+#RUN  chown -R developer:developer /home/developer
+
 USER developer
 
 RUN curl -sSL https://rvm.io/mpapis.asc | gpg --import - \ 
@@ -146,7 +150,7 @@ RUN bash -c "source ~/.profile \
 
 RUN echo "source ~/.profile" >> ~/.bashrc
 
-ENV JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
+ENV JAVA_TOOL_OPTIONS=$JAVA_TOOL_OPTIONS -Dfile.encoding=UTF8
 
 WORKDIR /srv/dspace-src
 
