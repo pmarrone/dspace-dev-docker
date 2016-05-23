@@ -137,5 +137,3 @@ The idea is to, eventually, move this out of the Dockerfile. If you look a littl
     
 ### Only xmlui and solr are currently running
 Yes, I will get this fixed soon. If you check $CATALINA_HOME/conf/Catalina/localhost you will notice that just two files exist. xmlui.xml and solr.xml. This should be enough to get a running DSpace instance with XMLUI interface. You can create the missing files to get the other services running, or copy the webapps you need into $CATALINA_HOME/webapps folder. The copy_webapps alias copies all the webapps from /srv/dspace/webapps to that folder. Not thoroughly tested, though.
-
-
