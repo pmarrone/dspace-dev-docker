@@ -146,6 +146,8 @@ RUN bash -c "source ~/.profile \
 
 RUN echo "source ~/.profile" >> ~/.bashrc
 
+ENV JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
+
 WORKDIR /srv/dspace-src
 
 EXPOSE 1043:1043
