@@ -154,7 +154,8 @@ RUN bash -c "source ~/.profile \
 
 RUN echo "source ~/.profile" >> ~/.bashrc
 
-ENV JAVA_TOOL_OPTIONS=$JAVA_TOOL_OPTIONS -Dfile.encoding=UTF8
+#This causes issues with ant update. Without this, ant update eats UTF-8 characters
+#ENV JAVA_TOOL_OPTIONS=$JAVA_TOOL_OPTIONS -Dfile.encoding=UTF8
 
 WORKDIR /srv/dspace-src
 
