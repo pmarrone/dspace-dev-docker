@@ -59,6 +59,16 @@ Right now, the major advantages of this build are
 
         git clone -b dspace-5.5 https://github.com/DSpace/DSpace.git dspace-src
         mkdir m2-repo dspace-build
+        
+You should end up with the folder structure that dspace-dev-docker expects:
+
+      dspace-dev-docker
+      |-- dspace-src
+      |-- dspace-build
+      +-- m2-repo
+      
+> If you were to change this names, be aware that changing dspace-dev-docker to something else will affect the 'attach' command later on. If you change dspace-src, dspace-build or m2-repo to a different name, be sure to check those names in the docker-compose.yml file under the volumes settings so that they are mapped correctly.
+
 > When you run ant tasks, this container expects dspace to be installed on the /srv/dspace folder. Edit your build.properties file in the dspace-src folder so that dspace.install.dir=/srv/dspace. Otherwise, running fresh_install will fail. 
 
 > You will need to change the db.url property in the build.properties file to ```db.url=jdbc:postgresql://postgres:5432/dspace``` to make the database connection work (notice postgres is used instead of localhost). The expected DB credentials are dspace:dspace for the dspace database.
