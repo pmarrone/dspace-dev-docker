@@ -69,13 +69,14 @@ You should end up with the folder structure that dspace-dev-docker expects:
       
 > If you were to change this names, be aware that changing dspace-dev-docker to something else will affect the 'attach' command later on. If you change dspace-src, dspace-build or m2-repo to a different name, be sure to check those names in the docker-compose.yml file under the volumes settings so that they are mapped correctly.
 
+<!-- -->
+> If you fail to create dspace-src, dspace-build and m2-repo folders, Docker will create them for you on startup, but belonging to the ROOT user. Make sure to change ownership of this folders to your user (e.g., sudo chown -R youruser:youruser dspace-src dspace-build m2-repo) or compilation and ant tasks will fail
+
+<!-- -->
 > When you run ant tasks, this container expects dspace to be installed on the /srv/dspace folder. Edit your build.properties file in the dspace-src folder so that dspace.install.dir=/srv/dspace. Otherwise, running fresh_install will fail. 
 
+<!-- -->
 > You will need to change the db.url property in the build.properties file to ```db.url=jdbc:postgresql://postgres:5432/dspace``` to make the database connection work (notice postgres is used instead of localhost). The expected DB credentials are dspace:dspace for the dspace database.
-
-
-
-> If you fail to create dspace-src, dspace-build and m2-repo folders, Docker will create them for you on startup, but belonging to the ROOT user. Make sure to change ownership of this folders to your user (e.g., sudo chown -R youruser:youruser dspace-src dspace-build m2-repo) or compilation and ant tasks will fail
 
  - Launch Docker compose and let the magic happen. It takes a while to download the first time you run it.
 
