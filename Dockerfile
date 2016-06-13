@@ -6,9 +6,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         wget
  
 # Environment variables
-ENV TOMCAT_MAJOR=8 TOMCAT_VERSION=8.0.33
-ENV TOMCAT_TGZ_URL=https://www.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz \
-    MAVEN_TGZ_URL=http://apache.mirror.iweb.ca/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
+ENV TOMCAT_MAJOR=8 TOMCAT_VERSION=8.0.35
+ENV TOMCAT_TGZ_URL=https://archive.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz \
+    MAVEN_TGZ_URL=http://mirrors.dcarsat.com.ar/apache/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
  
 ENV CATALINA_HOME=/usr/local/tomcat DSPACE_HOME=/srv/dspace
 ENV PATH=$CATALINA_HOME/bin:$DSPACE_HOME/bin:$PATH
