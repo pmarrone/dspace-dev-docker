@@ -2,13 +2,15 @@ version: '2'
 services:
   # Postgres database
   postgres:
-    image: postgres
+    build: ./postgres
     ports:
       - 5432:5432
     environment:
       - POSTGRES_DB=dspace
       - POSTGRES_USER=dspace
       - POSTGRES_PASSWORD=dspace
+    tty: true
+    stdin_open: true
   # DSpace
   dspace-dev:
     build: .
