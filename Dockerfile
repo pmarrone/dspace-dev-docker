@@ -1,50 +1,31 @@
-FROM ubuntu:trusty
+FROM ubuntu:xenial
  
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt update && apt install -y --no-install-recommends \
         ca-certificates \
         curl \
-        wget
- 
-# Environment variables
-ENV TOMCAT_MAJOR=8 TOMCAT_VERSION=8.0.35
-ENV TOMCAT_TGZ_URL=https://archive.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz \
-    MAVEN_TGZ_URL=http://mirrors.dcarsat.com.ar/apache/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
- 
-ENV CATALINA_HOME=/usr/local/tomcat DSPACE_HOME=/srv/dspace
-ENV PATH=$CATALINA_HOME/bin:$DSPACE_HOME/bin:$PATH
- 
+        vim \
+        wget \
+        byobu \
+        git \
+        bash-completion \
+        software-properties-common \
+        postgresql-client \
+        openjdk-8-jdk \
+#       openjdk-8-jre-dcevm \
+        tomcat8 \
+        ant \
+        maven \
+        unzip
+
 WORKDIR /tmp
- 
-RUN apt-get install software-properties-common -y
- 
+#Since DCEVM for Xenial seems kind of broken, we download it from zetzy
+RUN wget http://mirrors.kernel.org/ubuntu/pool/universe/o/openjdk-8-jre-dcevm/openjdk-8-jre-dcevm_8u112-1_amd64.deb && \
+    dpkg -i openjdk-8-jre-dcevm_8u112-1_amd64.deb
+
 # Define commonly used JAVA_HOME variable
-ENV JAVA_HOME /usr/lib/jvm/java-7-oracle
-#COPY jdk-7u79-linux-x64.tar.gz /tmp/jdk-7u79-linux-x64.tar.gz
-RUN  curl -v -j -k -L -H "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/7u79-b15/jdk-7u79-linux-x64.tar.gz -o jdk-7u79-linux-x64.tar.gz
-RUN mkdir -p $JAVA_HOME
-RUN tar -xvzf jdk-7u79-linux-x64.tar.gz --strip-components=1 -C $JAVA_HOME
-RUN update-alternatives --install /usr/bin/java java $JAVA_HOME/jre/bin/java 2000
-RUN update-alternatives --install /usr/bin/javac javac $JAVA_HOME/bin/javac 2000
+ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 
-# Install runtime and dependencies
-RUN apt-get install -y vim ant postgresql-client
- 
-RUN mkdir -p maven dspace "$CATALINA_HOME"
- 
-RUN curl -fSL "$TOMCAT_TGZ_URL" -o tomcat.tar.gz
-RUN curl -fSL "$MAVEN_TGZ_URL" -o maven.tar.gz \
-    && tar -xvf tomcat.tar.gz --strip-components=1 -C "$CATALINA_HOME" \
-    && tar -xvf maven.tar.gz --strip-components=1  -C maven
-
-RUN apt-get update && apt-get install git -y
-RUN apt-get install byobu -y
-
-
-RUN ln -s /tmp/maven/bin/mvn /usr/bin/mvn 
- 
 RUN mkdir -p /srv/dspace /srv/dspace-src
-
-RUN apt-get install bash-completion
 
 RUN mkdir /root/.m2
 #VOLUME /root/.m2
@@ -62,6 +43,8 @@ COPY bashrc /home/developer/.bashrc
 COPY bash_aliases /root/.bash_aliases
 COPY bash_aliases /home/developer/.bash_aliases
 
+ENV CATALINA_HOME=/usr/share/tomcat8 DSPACE_HOME=/srv/dspace 
+ENV PATH=$DSPACE_HOME/bin:$PATH 
 ###
 # Tomcat configuration tweaks
 ###
@@ -69,7 +52,6 @@ COPY bash_aliases /home/developer/.bash_aliases
 # Configure remote debugging and extra memory
 COPY setenv.sh $CATALINA_HOME/bin
 
-RUN apt-get install unzip -y
 
 #Install DCEVM
 #COPY libjvm.so /usr/lib/jvm/java-7-oracle/jre/lib/amd64/dcevm/libjvm.so
@@ -87,6 +69,8 @@ RUN mkdir /usr/lib/hotswapagent
 RUN unzip HotswapAgent-0.3.zip -d /usr/lib/hotswapagent/
 RUN rm HotswapAgent-0.3.zip
 
+RUN apt install -y sudo
+
 RUN export HOME=/home/developer
 RUN export uid=1000 gid=1000 && \
     mkdir -p /home/developer && \
@@ -98,7 +82,6 @@ RUN export uid=1000 gid=1000 && \
 
 RUN chown -R developer $CATALINA_HOME
 
-
 COPY entrypoint.sh /
 RUN chmod +x /entrypoint.sh
 #ENTRYPOINT ["/entrypoint.sh"]
@@ -106,11 +89,11 @@ RUN chmod +x /entrypoint.sh
 #Install PSI Probe
 RUN curl -fSL https://github.com/psi-probe/psi-probe/releases/download/2.4.0/probe-2.4.0.zip -o probe.zip
 RUN unzip probe.zip
-RUN mv probe.war $CATALINA_HOME/webapps/probe.war
+# RUN mv probe.war $CATALINA_HOME/webapps/probe.war
 
 COPY conf $CATALINA_HOME/conf
 
-RUN curl -sL https://deb.nodesource.com/setup | sudo bash - \
+RUN curl -sL https://deb.nodesource.com/setup_6.x | sudo bash - \
   && apt-get install nodejs -y 
 
 RUN npm install -g grunt bower
@@ -139,6 +122,9 @@ RUN ln -s /srv/dspace/bin/dspace /usr/bin/dspace
 #RUN export uid=1009 && usermod -u $uid developer
 #RUN  chown -R developer:developer /home/developer
 
+RUN locale-gen en_US.UTF-8
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+
 #Also, give developer ownership of CATALINA_HOME
 RUN chown -R developer:developer $CATALINA_HOME/
 USER developer
@@ -154,8 +140,6 @@ RUN bash -c "source ~/.profile \
 
 RUN echo "source ~/.profile" >> ~/.bashrc
 
-RUN locale-gen en_US.UTF-8
-ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 WORKDIR /srv/dspace-src
 

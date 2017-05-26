@@ -1,5 +1,5 @@
 <Context 
-  docBase="/srv/dspace-src/dspace/modules/solr/target/solr-5.5"
+  docBase="/srv/dspace-src/dspace/modules/solr/target/solr-6.0"
   reloadable="true"
 >
 	<JarScanner scanClassPath="false" scanAllFiles="false" scanAllDirectories="false"/>
