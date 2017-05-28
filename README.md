@@ -11,8 +11,7 @@ environment.
 
 This project runs on Docker-compose, setting up two containers: one for DSpace development environment and one for Postgres.
 The development container should include not only all DSpace's prerequisites but also some tweaks to get faster builds,
-deployments and better code hot-swapping. Eventually this should also include a preconfigured IDE, accessible using
-X11 forwarding to start running and debugging the project. 
+deployments and better code hot-swapping. 
 
 # Why?
 
@@ -29,7 +28,7 @@ kind of messy to do it on your workstation. Having a container that keeps all th
 encourage experimenting with further tweaks.
 
 # This works on Linux
-Docker works on Windows and OsX too. Most of this 'should' work on Windows and OsX. The major problem, I believe, are mounted folders. On linux, they just work. On Windows and OsX, I'm not sure how they are mounted. Just thinking that containers are running inside a VirtualBox VM makes me believe that you will hit the same performance and event propagation issues that you get when you use shared folders on a VirtalBox VM. Docker has been working to improve this integration, but I haven't tested any of this outside linux.
+Docker works on Windows and MacOS too. Most of this 'should' work on Windows and MacOS. The major problem, I believe, are mounted folders. On linux, they just work. On Windows and MacOS, I'm not sure how they are mounted. Docker has been working to improve this integration, but I haven't tested any of this outside linux.
 
 # What's in it for me?
 
@@ -37,13 +36,13 @@ Right now, the major advantages of this build are
 - HotSwap Agent integretion, so you can update recompiled classes without restarting tomcat. This should be a MAJOR timesaver while developing.
 - Skip jar scanning on Tomcat startup configured by default. This should halve tomcat launch time
 - Launch tomcat contexts in parallel. This should make it faster, maybe
-- Tomcat manager available by default
-- Keep your workspace clean, by putting all of DSpace development dependencies in a container. No more having postgres and tomcat running for no reason.
+- Keep your workspace clean, by putting all of DSpace development dependencies in a container. No more having postgres and tomcat running locally for no reason.
 - Seamless filesystem integration (in linux) makes working with the mounted source folder feel just like local development. Avoid the nightmare of running mvn package on a VirtualBox or NFS shared folder (which takes forever) while being able to easily edit source files in an editor running on the host machine.
+- Mirage2 ready. Node, Ruby and batteries included. Ready to compile Mirage2 faster with `-Dmirage2.deps.included=false`
 - Instant workspace: Launching a full VM takes minutes. Once downloaded and built, docker-compose up takes seconds. Literally. See it to believe it.
 
 # Requirements
-- Install [Docker](https://docs.docker.com/engine/quickstart/)
+- Install [Docker](https://docs.docker.com/engine/installation/)
 - Install [Docker Compose](https://docs.docker.com/compose/install/) (Make sure to install the binaries, not the container)
 - Have ports 8080 (tomcat), 5432 (postgresql), 1043 and 8000 (remote debugging) open. Otherwise, you can modify the mappings
   in docker-compose.yml file to use whichever ports you prefer.
@@ -57,7 +56,7 @@ Right now, the major advantages of this build are
 
  - Add a dspace-src folder, where your DSpace code will reside. Also, add m2-repo and dspace-build folders.
 
-        git clone -b dspace-5.5 https://github.com/DSpace/DSpace.git dspace-src
+        git clone -b dspace-6.0 https://github.com/DSpace/DSpace.git dspace-src
         mkdir m2-repo dspace-build
         
 You should end up with the folder structure that dspace-dev-docker expects:
@@ -124,8 +123,8 @@ work on IntelliJ, but the setup should be somewhat similar in other IDEs.
 
 As this project is in a very early stage, there are some annoyances to be taken into account. Some known, some unknown. Hopefully, they will be eventually get ironed out, but, for the time being.
 
-### Only tested on DSpace 5.5
-Currently, some things are harcoded inside Tomcat configuration to work with DSpace 5.5. Check $CATALINA_HOME/conf/Catalina/localhost/ xml files and change reference to whichever version you need. Otherwise, delete those files and run the copy_webapps command alias to copy all webapps to tomcat's webapps folder
+### Now works with DSpace 6.0! It used to work on DSpace 5.5
+Currently, some things are harcoded inside Tomcat configuration to work with DSpace 6.0. Check $CATALINA_HOME/conf/Catalina/localhost/ xml files and change reference to whichever version you need. Otherwise, delete those files and run the copy_webapps command alias to copy all webapps to tomcat's webapps folder
 
 ### UID is ironed into the Dockerfile
 To get things running smoothly, the developer user of the container should match in UID to your current user. It is hardcoded to 1000. If you need to change this (say, your UID is 1009), you will have to rebuild the image with your user ID. Perhaps you can create your own layer to only change this, but, if you want to get up and running quick and dirty, uncomment the following lines in the Dockerfile. This should change the user's UID.
@@ -147,4 +146,4 @@ The idea is to, eventually, move this out of the Dockerfile. If you look a littl
         chown ${uid}:${gid} -R /home/developer
     
 ### Only xmlui and solr are currently running
-Yes, I will get this fixed soon. If you check $CATALINA_HOME/conf/Catalina/localhost you will notice that just two files exist. xmlui.xml and solr.xml. This should be enough to get a running DSpace instance with XMLUI interface. You can create the missing files to get the other services running, or copy the webapps you need into $CATALINA_HOME/webapps folder. The copy_webapps alias copies all the webapps from /srv/dspace/webapps to that folder. Not thoroughly tested, though.
+Yes, I will get this fixed eventually, if somebody asks for it. If you check $CATALINA_HOME/conf/Catalina/localhost you will notice that just two files exist. xmlui.xml and solr.xml. This should be enough to get a running DSpace instance with XMLUI interface. You can create the missing files to get the other services running, or copy the webapps you need into $CATALINA_HOME/webapps folder. The copy_webapps alias copies all the webapps from /srv/dspace/webapps to that folder. Not thoroughly tested, though.
