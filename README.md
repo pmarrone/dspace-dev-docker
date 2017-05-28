@@ -38,7 +38,7 @@ Right now, the major advantages of this build are
 - Launch tomcat contexts in parallel. This should make it faster, maybe
 - Keep your workspace clean, by putting all of DSpace development dependencies in a container. No more having postgres and tomcat running locally for no reason.
 - Seamless filesystem integration (in linux) makes working with the mounted source folder feel just like local development. Avoid the nightmare of running mvn package on a VirtualBox or NFS shared folder (which takes forever) while being able to easily edit source files in an editor running on the host machine.
-- Mirage2 ready. Node, Ruby and batteries included. Ready to compile Mirage2 faster with `-Dmirage2.deps.included=false`
+- Mirage2 ready. Node, Ruby and batteries included. Ready to compile Mirage2 faster with ```-Dmirage2.deps.included=false```
 - Instant workspace: Launching a full VM takes minutes. Once downloaded and built, docker-compose up takes seconds. Literally. See it to believe it.
 
 # Requirements
@@ -72,10 +72,10 @@ You should end up with the folder structure that dspace-dev-docker expects:
 > If you fail to create dspace-src, dspace-build and m2-repo folders, Docker will create them for you on startup, but belonging to the ROOT user. Make sure to change ownership of this folders to your user (e.g., sudo chown -R youruser:youruser dspace-src dspace-build m2-repo) or compilation and ant tasks will fail
 
 <!-- -->
-> When you run ant tasks, this container expects dspace to be installed on the /srv/dspace folder. Edit your build.properties file in the dspace-src folder so that dspace.install.dir=/srv/dspace. Otherwise, running fresh_install will fail. 
+> When you run ant tasks, this container expects dspace to be installed on the /srv/dspace folder. Edit your local.cfg file in the dspace-src folder so that dspace.install.dir=/srv/dspace. Otherwise, running fresh_install will fail. 
 
 <!-- -->
-> You will need to change the db.url property in the build.properties file to ```db.url=jdbc:postgresql://postgres:5432/dspace``` to make the database connection work (notice postgres is used instead of localhost). The expected DB credentials are dspace:dspace for the dspace database.
+> You will need to change the db.url property in the local.cfg file to ```db.url=jdbc:postgresql://postgres:5432/dspace``` to make the database connection work (notice postgres is used instead of localhost). The expected DB credentials are dspace:dspace for the dspace database.
 
  - Launch Docker compose and let the magic happen. It takes a while to download the first time you run it.
 
@@ -119,12 +119,13 @@ work on IntelliJ, but the setup should be somewhat similar in other IDEs.
 
 # Rough Edges
 > "Nothing works out of the box. This project sucks. Your Dockerfile is a mess. You suck. We hate you"
+>
 > -- Everyone, all the time
 
-As this project is in a very early stage, there are some annoyances to be taken into account. Some known, some unknown. Hopefully, they will be eventually get ironed out, but, for the time being.
+As this project hasn't caught much traction and I'm probably the only one using it, there are some annoyances to be taken into account. Some known, some unknown. Hopefully, they will be eventually get ironed out, but, for the time being, keep these issues in mind:
 
-### Now works with DSpace 6.0! It used to work on DSpace 5.5
-Currently, some things are harcoded inside Tomcat configuration to work with DSpace 6.0. Check $CATALINA_HOME/conf/Catalina/localhost/ xml files and change reference to whichever version you need. Otherwise, delete those files and run the copy_webapps command alias to copy all webapps to tomcat's webapps folder
+### Now (only) works with DSpace 6.0! It used to work on DSpace 5.5
+Currently, some things are harcoded inside Tomcat configuration to work with DSpace 6.0. Check $CATALINA_HOME/conf/Catalina/localhost/ xml files and change the 6.0 references to whichever version you need. These files are meant to do a little magic, avoiding the extra ant-update step. If you can't fix this, try deleting those files and run the copy_webapps command alias to copy all webapps to tomcat's webapps folder
 
 ### UID is ironed into the Dockerfile
 To get things running smoothly, the developer user of the container should match in UID to your current user. It is hardcoded to 1000. If you need to change this (say, your UID is 1009), you will have to rebuild the image with your user ID. Perhaps you can create your own layer to only change this, but, if you want to get up and running quick and dirty, uncomment the following lines in the Dockerfile. This should change the user's UID.
