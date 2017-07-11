@@ -130,7 +130,7 @@ USER developer
 #Install ruby deps
 RUN sudo apt-get install -y bison build-essential zlib1g-dev libssl-dev libxml2-dev git-core
 RUN curl -sSL https://rvm.io/mpapis.asc | gpg --import - \
-  && curl -sSL https://get.rvm.io | bash -s stable --ruby
+  && curl -sSL https://raw.githubusercontent.com/wayneeseguin/rvm/stable/binscripts/rvm-installer | bash -s stable --ruby
 
 RUN bash -c "source ~/.profile \
   && gem install sass -v 3.3.14  \
