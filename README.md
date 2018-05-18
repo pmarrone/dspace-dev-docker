@@ -1,3 +1,7 @@
+# This project has been forked by DSpace Labs!!
+
+This project has now moved to DSpace Labs. Until I find a way to officially transfer the project on github (help is welcome), you are encouraged to contribute to this project here: https://github.com/DSpace-Labs/dspace-dev-docker
+
 # dspace-dev-docker
 
 DSpace instant development environment using Docker Compose (Currently for Linux)
